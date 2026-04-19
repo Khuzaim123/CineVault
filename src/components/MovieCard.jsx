@@ -18,6 +18,8 @@ const MovieCard = ({ movie }) => {
   const inWatchlist = isInWatchlist(movie?.id);
   const releaseYear = movie?.release_date?.split('-')[0] || movie?.first_air_date?.split('-')[0] || 'N/A';
   const title = movie?.title || movie?.name || '';
+  const isTV = Boolean(movie?.media_type === 'tv' || (!movie?.title && movie?.name) || movie?.first_air_date);
+  const route = isTV ? `/tv/${movie?.id}` : `/movie/${movie?.id}`;
 
   const handleFavorite = (e) => {
     e.preventDefault();
@@ -35,7 +37,7 @@ const MovieCard = ({ movie }) => {
 
   return (
     <Link
-      to={`/movie/${movie?.id}`}
+      to={route}
       className="relative group block flex-shrink-0"
       style={{ minWidth: '130px', width: '130px' }}
       onMouseEnter={() => setIsHovered(true)}

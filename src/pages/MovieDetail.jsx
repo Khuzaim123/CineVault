@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
+import { PersonIcon } from '../components/CustomIcons';
 import { PlayIcon, StarIcon, ArrowLeftIcon, YouTubeIcon, HeartIcon, BookmarkIcon, LockIcon } from '../components/CustomIcons';
-import { getMovieDetail, getSimilar, getImageUrl } from '../lib/tmdb';
+import { getMovieDetail, getSimilar, getImageUrl, getTVDetail, getTVSimilar } from '../lib/tmdb';
 import VideoPlayer from '../components/VideoPlayer';
 import MovieCard from '../components/MovieCard';
 import SkeletonCard from '../components/SkeletonCard';
@@ -12,6 +13,9 @@ import { useGuestModal } from '../context/GuestModalContext';
 const MovieDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isTV = location.pathname.startsWith('/tv');
+  
   const [movie, setMovie] = useState(null);
   const [similar, setSimilar] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,8 +33,8 @@ const MovieDetail = () => {
     const fetchDetails = async () => {
       try {
         const [detailResponse, similarResponse] = await Promise.all([
-          getMovieDetail(id),
-          getSimilar(id),
+          isTV ? getTVDetail(id) : getMovieDetail(id),
+          isTV ? getTVSimilar(id) : getSimilar(id),
         ]);
 
         if (detailResponse.status === 404) {
@@ -60,7 +64,7 @@ const MovieDetail = () => {
     };
     fetchDetails();
     window.scrollTo(0, 0);
-  }, [id]);
+  }, [id, isTV]);
 
   const handleWatch = () => {
     if (!user) { showWatchModal(); return; }
@@ -98,7 +102,7 @@ const MovieDetail = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <p className="text-text-muted text-lg mb-4">{error || 'Movie not found'}</p>
+          <p className="text-text-muted text-lg mb-4">{error || (isTV ? 'TV show not found' : 'Movie not found')}</p>
           <button
             onClick={() => navigate('/')}
             className="px-6 py-3 bg-gold text-background rounded-full font-medium hover:bg-amber-400 transition-colors"
@@ -109,6 +113,10 @@ const MovieDetail = () => {
       </div>
     );
   }
+
+  const title = movie.title || movie.name || '';
+  const date = movie.release_date || movie.first_air_date || 'N/A';
+  const runtime = isTV ? (movie.episode_run_time?.[0] || 'N/A') : (movie.runtime || 'N/A');
 
   const trailer = movie.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
   const cast = movie.credits?.cast?.slice(0, 10) || [];
@@ -142,7 +150,7 @@ const MovieDetail = () => {
             <div className="sticky top-24">
               <img
                 src={getImageUrl(movie.poster_path, 'w500')}
-                alt={movie.title}
+                alt={title}
                 className="w-full rounded-lg shadow-[0_0_30px_rgba(232,184,75,0.15)]"
                 onError={(e) => { e.target.style.display = 'none'; }}
               />
@@ -151,7 +159,7 @@ const MovieDetail = () => {
 
           {/* Details */}
           <div className="md:col-span-2">
-            <h1 className="font-display text-4xl sm:text-5xl font-bold text-text-primary mb-4">{movie.title}</h1>
+            <h1 className="font-display text-4xl sm:text-5xl font-bold text-text-primary mb-4">{title}</h1>
 
             {movie.tagline && (
               <p className="text-text-muted text-lg italic mb-6">{movie.tagline}</p>
@@ -165,9 +173,9 @@ const MovieDetail = () => {
                 <span className="text-text-muted">/ 10</span>
               </div>
               <span className="w-1 h-1 bg-text-muted rounded-full" />
-              <span className="text-text-muted">{movie.release_date?.split('-')[0] || 'N/A'}</span>
+              <span className="text-text-muted">{date.split('-')[0]}</span>
               <span className="w-1 h-1 bg-text-muted rounded-full" />
-              <span className="text-text-muted">{movie.runtime || 'N/A'} min</span>
+              <span className="text-text-muted">{runtime} min</span>
               <span className="w-1 h-1 bg-text-muted rounded-full" />
               <span className="border border-text-muted/30 px-2 py-0.5 rounded text-xs text-text-muted">
                 {movie.adult ? '18+' : 'PG-13'}
@@ -242,27 +250,32 @@ const MovieDetail = () => {
                 <h3 className="font-display text-xl font-semibold text-text-primary mb-4">Cast</h3>
                 <div className="flex gap-4 overflow-x-auto pb-2" style={{ WebkitOverflowScrolling: 'touch' }}>
                   {cast.map((actor) => (
-                    <div key={actor.id} className="flex-shrink-0 w-24 text-center">
-                      <div className="w-20 h-20 mx-auto rounded-full overflow-hidden mb-2 bg-surface">
+                    <Link
+                      key={actor.id}
+                      to={`/actor/${actor.id}`}
+                      className="group flex-shrink-0 w-24 text-center"
+                    >
+                      <div className="w-20 h-20 mx-auto rounded-full overflow-hidden mb-2 bg-surface transition-all duration-300 group-hover:ring-2 group-hover:ring-gold">
                         {actor.profile_path ? (
                           <img
                             src={getImageUrl(actor.profile_path, 'w185')}
                             alt={actor.name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-white/5">
-                            <span className="text-text-muted text-xs">{actor.name.split(' ')[0]}</span>
+                            <PersonIcon size={28} color="rgba(232,184,75,0.4)" />
                           </div>
                         )}
                       </div>
-                      <p className="text-text-primary text-sm font-medium truncate">{actor.name}</p>
+                      <p className="text-text-primary text-sm font-medium truncate group-hover:text-gold transition-colors">{actor.name}</p>
                       <p className="text-text-muted text-xs truncate">{actor.character}</p>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
             )}
+
 
             {/* Trailer */}
             {trailer && (
@@ -300,7 +313,7 @@ const MovieDetail = () => {
       </div>
 
       {/* Video Player Modal */}
-      {showPlayer && <VideoPlayer movieId={movie.id} trailerKey={trailer?.key} onClose={() => setShowPlayer(false)} />}
+      {showPlayer && <VideoPlayer movieId={movie.id} trailerKey={trailer?.key} isTV={isTV} onClose={() => setShowPlayer(false)} />}
     </div>
   );
 };

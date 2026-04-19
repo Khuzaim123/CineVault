@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { getTVTrending, getTVPopular, getTVTopRated } from '../lib/tmdb';
+import { getTVTrending, getTVPopular, getTVTopRated, searchTV } from '../lib/tmdb';
 import MovieCard from '../components/MovieCard';
 import SkeletonCard from '../components/SkeletonCard';
 import Pagination from '../components/Pagination';
 import Footer from '../components/Footer';
-
+import { SearchIcon } from '../components/CustomIcons';
 const TABS = [
   { id: 'trending',  label: 'Trending',  fetch: getTVTrending },
   { id: 'popular',   label: 'Popular',   fetch: getTVPopular },
@@ -16,17 +16,24 @@ const TV = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam  = searchParams.get('tab')  || 'trending';
   const pageParam = parseInt(searchParams.get('page') || '1', 10);
+  const queryParam = searchParams.get('q') || '';
 
-  const [shows,      setShows]      = useState([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isLoading,  setLoading]    = useState(true);
+  const [shows,       setShows]       = useState([]);
+  const [totalPages,  setTotalPages]  = useState(1);
+  const [isLoading,   setLoading]     = useState(true);
+  const [searchInput, setSearchInput] = useState(queryParam);
 
   const activeTab = TABS.find((t) => t.id === tabParam) || TABS[0];
 
   useEffect(() => {
     setLoading(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    activeTab.fetch(pageParam)
+    
+    const fetchShows = queryParam 
+      ? searchTV(queryParam, pageParam) 
+      : activeTab.fetch(pageParam);
+      
+    fetchShows
       .then((r) => r.json())
       .then((data) => {
         setShows(data.results || []);
@@ -34,20 +41,59 @@ const TV = () => {
       })
       .catch(() => setShows([]))
       .finally(() => setLoading(false));
-  }, [tabParam, pageParam]);
+  }, [tabParam, pageParam, queryParam]);
 
-  const goToPage = (page) =>
-    setSearchParams({ tab: tabParam, page: String(page) });
+  const updateParams = (overrides) => {
+    const next = { tab: tabParam, page: '1', q: queryParam, ...overrides };
+    const out = {};
+    if (next.tab !== 'trending') out.tab = next.tab;
+    if (next.page !== '1') out.page = next.page;
+    if (next.q) out.q = next.q;
+    setSearchParams(out);
+  };
 
-  const switchTab = (tabId) =>
-    setSearchParams({ tab: tabId, page: '1' });
+  const goToPage = (page) => updateParams({ page: String(page) });
+  const switchTab = (tabId) => updateParams({ tab: tabId, page: '1' });
+
+  // Real-time debounced search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const q = searchInput.trim();
+      if (q !== queryParam) {
+        updateParams({ q, page: '1' });
+      }
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchInput, queryParam]);
 
   return (
     <div className="min-h-screen bg-background pt-24 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="font-display text-4xl font-bold text-text-primary mb-6">TV Shows</h1>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <h1 className="font-display text-4xl font-bold text-text-primary">TV Shows</h1>
+            
+            {/* Real-time Search */}
+            <div className="relative w-full md:w-64 lg:w-80">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <SearchIcon size={16} color="#6B6875" />
+              </div>
+              <input
+                type="text"
+                value={searchInput}
+                onChange={e => setSearchInput(e.target.value)}
+                placeholder="Search TV shows..."
+                className="w-full pl-9 pr-4 py-2 text-sm rounded-full text-text-primary placeholder-text-muted outline-none"
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}
+              />
+            </div>
+          </div>
+          
+          {!queryParam && (
           <div className="flex flex-wrap gap-2">
             {TABS.map((tab) => (
               <button
@@ -65,6 +111,13 @@ const TV = () => {
               </button>
             ))}
           </div>
+          )}
+          
+          {queryParam && !isLoading && (
+            <p className="text-text-muted text-sm mt-4">
+              Results for &quot;{queryParam}&quot; &mdash; <span className="text-text-primary font-medium">{shows.length}</span> shown
+            </p>
+          )}
         </div>
 
         {/* Grid */}

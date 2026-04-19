@@ -234,3 +234,88 @@ export const FilmIcon = ({ size = 24, color = 'currentColor', className = '' }) 
   </svg>
 );
 
+
+export const PersonIcon = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <circle cx="12" cy="7" r="4" stroke={color} strokeWidth="2" fill="none" />
+    <path d="M4 21C4 17.134 7.134 14 11 14H13C16.866 14 20 17.134 20 21" stroke={color} strokeWidth="2" strokeLinecap="round" fill="none" />
+  </svg>
+);
+
+export const PeopleGroupIcon = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <circle cx="9" cy="7" r="3" stroke={color} strokeWidth="2" fill="none" />
+    <circle cx="17" cy="8" r="2.5" stroke={color} strokeWidth="1.8" fill="none" />
+    <path d="M2 20C2 17 5 15 9 15C13 15 16 17 16 20" stroke={color} strokeWidth="2" strokeLinecap="round" fill="none" />
+    <path d="M17 13C19.5 13 22 14.5 22 17" stroke={color} strokeWidth="1.8" strokeLinecap="round" fill="none" />
+  </svg>
+);
+
+export const FilterIcon = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <path d="M3 6H21" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    <path d="M6 12H18" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    <path d="M9 18H15" stroke={color} strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+export const CategoryIcon = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <rect x="3" y="3" width="8" height="8" rx="1.5" stroke={color} strokeWidth="2" fill="none" />
+    <rect x="13" y="3" width="8" height="8" rx="1.5" stroke={color} strokeWidth="2" fill="none" />
+    <rect x="3" y="13" width="8" height="8" rx="1.5" stroke={color} strokeWidth="2" fill="none" />
+    <rect x="13" y="13" width="8" height="8" rx="1.5" stroke={color} strokeWidth="2" fill="none" />
+  </svg>
+);
+
+export const MaleIcon = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <circle cx="10" cy="14" r="5" stroke={color} strokeWidth="2" fill="none" />
+    <path d="M15 9L20 4" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    <path d="M16 4H20V8" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+export const FemaleIcon = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <circle cx="12" cy="9" r="5" stroke={color} strokeWidth="2" fill="none" />
+    <path d="M12 14V20" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    <path d="M9 18H15" stroke={color} strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+export const TrendingUpIcon = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <path d="M22 7L13.5 15.5L8.5 10.5L2 17" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M15 7H22V14" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+export const SortIcon = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <path d="M3 6H21M6 12H18M10 18H14" stroke={color} strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+export const AwardIcon = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <circle cx="12" cy="9" r="6" stroke={color} strokeWidth="2" fill="none" />
+    <path d="M8.21 13.89L7 23L12 20L17 23L15.79 13.88" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+export const BirthdayIcon = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <rect x="3" y="10" width="18" height="11" rx="2" stroke={color} strokeWidth="2" fill="none" />
+    <path d="M8 10V8C8 6.343 9.343 5 11 5H13C14.657 5 16 6.343 16 8V10" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    <path d="M12 5V3" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    <path d="M8 15H16" stroke={color} strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+export const MapPinIcon = ({ size = 24, color = 'currentColor', className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <path d="M12 2C8.134 2 5 5.134 5 9C5 14.5 12 22 12 22C12 22 19 14.5 19 9C19 5.134 15.866 2 12 2Z" stroke={color} strokeWidth="2" fill="none" />
+    <circle cx="12" cy="9" r="2.5" stroke={color} strokeWidth="2" fill="none" />
+  </svg>
+);

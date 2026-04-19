@@ -3,7 +3,6 @@ import { AuthProvider } from './context/AuthContext';
 import { GuestModalProvider } from './context/GuestModalContext';
 import Navbar from './components/Navbar';
 import MobileViewToggle from './components/MobileViewToggle';
-import { useDevProtection } from './hooks/useDevProtection';
 import Home from './pages/Home';
 import MovieDetail from './pages/MovieDetail';
 import Search from './pages/Search';
@@ -15,18 +14,19 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import Profile from './pages/Profile';
+import Actors from './pages/Actors';
+import ActorDetail from './pages/ActorDetail';
+import Genre from './pages/Genre';
 
 // Inner component so hooks can run inside Router + AuthProvider context
 const AppShell = () => {
-  // Disable right-click and DevTools shortcuts globally
-  useDevProtection();
-
   return (
     <div className="min-h-screen bg-background font-body">
       <Navbar />
       <Routes>
         <Route path="/"                element={<Home />} />
         <Route path="/movie/:id"       element={<MovieDetail />} />
+        <Route path="/tv/:id"          element={<MovieDetail />} />
         <Route path="/search"          element={<Search />} />
         <Route path="/watchlist"       element={<Watchlist />} />
         <Route path="/favorites"       element={<Favorites />} />
@@ -36,6 +36,9 @@ const AppShell = () => {
         <Route path="/signup"          element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/profile"         element={<Profile />} />
+        <Route path="/actors"          element={<Actors />} />
+        <Route path="/actor/:id"       element={<ActorDetail />} />
+        <Route path="/genre/:id"       element={<Genre />} />
     </Routes>
       {/* Fixed bottom-right button to preview the site in a mobile frame */}
       <MobileViewToggle />

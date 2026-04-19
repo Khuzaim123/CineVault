@@ -2,21 +2,21 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { CloseIcon, FullscreenIcon } from './CustomIcons';
 
 // ─── Source definitions ──────────────────────────────────────────────────────
-const buildSources = (tmdbId, trailerKey) => [
+const buildSources = (tmdbId, trailerKey, isTV) => [
   {
     id: 'src1',
     label: 'Source 1',
-    url: `https://vidsrc.to/embed/movie/${tmdbId}`,
+    url: `https://vidsrc.to/embed/${isTV ? 'tv' : 'movie'}/${tmdbId}`,
   },
   {
     id: 'src2',
     label: 'Source 2',
-    url: `https://vidsrc.me/embed/movie?tmdb=${tmdbId}`,
+    url: `https://vidsrc.me/embed/${isTV ? 'tv' : 'movie'}?tmdb=${tmdbId}`,
   },
   {
     id: 'src3',
     label: 'Source 3',
-    url: `https://multiembed.mov/?tmdb=1&video_id=${tmdbId}`,
+    url: isTV ? `https://multiembed.mov/?tmdb=1&video_id=${tmdbId}&tmdb_type=tv` : `https://multiembed.mov/?tmdb=1&video_id=${tmdbId}`,
   },
   {
     id: 'trailer',
@@ -26,8 +26,8 @@ const buildSources = (tmdbId, trailerKey) => [
 ];
 
 // ─── Component ───────────────────────────────────────────────────────────────
-const VideoPlayer = ({ movieId, trailerKey, onClose }) => {
-  const sources = buildSources(movieId, trailerKey);
+const VideoPlayer = ({ movieId, trailerKey, isTV, onClose }) => {
+  const sources = buildSources(movieId, trailerKey, isTV);
   const streamSources = sources.slice(0, 3); // Source 1–3 only
 
   const [activeIndex, setActiveIndex] = useState(0);

@@ -43,6 +43,7 @@ CineVault is a feature-rich cinema discovery application that lets users explore
 |---|---|
 | 🔍 **Search** | Real-time movie & TV show search powered by TMDB |
 | 🎭 **Genre Filtering** | Browse content by genre across Movies and TV |
+| 🎬 **Actors & Crews** | Explore popular actors, with dedicated bios and filmographies |
 | 📺 **Video Player** | In-app streaming with 3 fallback sources + YouTube trailer support |
 | ❤️ **Favorites** | Save your favourite titles to a personal list |
 | 📌 **Watchlist** | Keep track of what you want to watch next |
@@ -104,9 +105,12 @@ cinevault/
 │   │   ├── useSupabaseLists.js    # Hook: favourites & watchlist CRUD
 │   │   └── useWatchlist.js        # Hook: watchlist-specific operations
 │   ├── pages/
+│   │   ├── ActorDetail.jsx        # Detailed biography and filmography page for an actor
+│   │   ├── Actors.jsx             # Browse actors with gender and popularity filters
 │   │   ├── Favorites.jsx          # User's saved favourites page
 │   │   ├── ForgotPassword.jsx     # Password reset request page
-│   │   ├── Home.jsx               # Homepage (hero + movie rows)
+│   │   ├── Genre.jsx              # Dedicated movie list filtered by specific genre
+│   │   ├── Home.jsx               # Homepage (hero + movie rows + genre cards)
 │   │   ├── Login.jsx              # Email & Google sign-in page
 │   │   ├── MovieDetail.jsx        # Full movie detail + video player
 │   │   ├── Movies.jsx             # Browse all movies with pagination
@@ -238,9 +242,12 @@ All routes are defined in `src/App.jsx`. The application wraps the entire tree i
 
 | Path | Component | Description |
 |---|---|---|
-| `/` | `Home` | Hero + trending rows |
-| `/movies` | `Movies` | Full movie browser with genre filter |
+| `/` | `Home` | Hero + trending rows + clickable genre categories |
+| `/movies` | `Movies` | Full movie browser with genre filter and sorting |
 | `/tv` | `TV` | TV show browser |
+| `/actors` | `Actors` | Browse popular actors with gender and sort filters |
+| `/actor/:id` | `ActorDetail` | Actor bio, photo gallery, and clickable filmography |
+| `/genre/:id` | `Genre` | Dedicated page for movies of a specific genre |
 | `/search` | `Search` | Search results |
 | `/movie/:id` | `MovieDetail` | Detail page + video player |
 | `/watchlist` | `Watchlist` | Auth-protected watchlist |
@@ -369,6 +376,7 @@ getPopular(page)            // Popular movies
 getTopRated(page)           // Top-rated movies
 getNowPlaying(page)         // Now playing in cinemas
 getByGenre(genreId, page)   // Movies filtered by genre ID
+discoverMovies(options)     // Movies filtered by genre ID with optional sorting
 getMovieDetail(id)          // Full detail + videos + credits
 searchMovies(query, page)   // Text search
 getSimilar(id)              // Similar movies
@@ -377,6 +385,10 @@ getGenres()                 // Genre list
 getTVTrending(page)         // Weekly trending TV
 getTVPopular(page)          // Popular TV
 getTVTopRated(page)         // Top-rated TV
+
+getPopularPeople(page)      // Popular actors/actresses
+getPersonDetail(id)         // Actor biography and combined credits
+searchPeople(query, page)   // Text search for actors
 
 IMAGE_BASE                  // "https://image.tmdb.org/t/p/"
 getImageUrl(path, size)     // Constructs full image URL

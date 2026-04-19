@@ -1,31 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { CinemaIcon, SearchIcon, MenuIcon, CloseIcon, HomeIcon, TVIcon, HeartIcon, UserIcon, BookmarkIcon, LogOutIcon } from './CustomIcons';
-// Adults 18+ shield icon — inline so no extra file is needed
-const Adults18Icon = ({ size = 18 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <path d="M12 2L3 6V12C3 16.55 7.05 20.74 12 22C16.95 20.74 21 16.55 21 12V6L12 2Z"
-      stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-    <text x="12" y="14.5" textAnchor="middle" fontSize="7" fontWeight="800" fill="currentColor" fontFamily="sans-serif">18+</text>
-  </svg>
-);
+import {
+  CinemaIcon, SearchIcon, MenuIcon, CloseIcon,
+  HomeIcon, TVIcon, HeartIcon, UserIcon,
+  BookmarkIcon, LogOutIcon, PeopleGroupIcon, CategoryIcon,
+} from './CustomIcons';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { useSiteSettings } from '../hooks/useSiteSettings';
 import GuestBanner from './GuestBanner';
 
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrolled,      setIsScrolled]      = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [displayName, setDisplayName] = useState('');
-  const [navImgError, setNavImgError] = useState(false);
+  const [dropdownOpen,    setDropdownOpen]    = useState(false);
+  const [displayName,     setDisplayName]     = useState('');
+  const [navImgError,     setNavImgError]     = useState(false);
   const dropdownRef = useRef(null);
 
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut, avatarUrl } = useAuth();
-  const { showAdultSection } = useSiteSettings();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -44,7 +38,7 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Fetch display name only (avatarUrl comes from shared AuthContext state)
+  // Fetch display name
   useEffect(() => {
     if (!user) { setDisplayName(''); return; }
     supabase.from('profiles').select('avatar_url, username, full_name').eq('id', user.id).single()
@@ -63,17 +57,15 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { path: '/', label: 'Home', icon: HomeIcon },
-    { path: '/movies', label: 'Movies', icon: CinemaIcon },
-    { path: '/tv', label: 'TV Shows', icon: TVIcon },
-    { path: '/favorites', label: 'Favorites', icon: HeartIcon },
-    { path: '/watchlist', label: 'Watchlist', icon: HeartIcon },
+    { path: '/',        label: 'Home',       icon: HomeIcon        },
+    { path: '/movies',  label: 'Movies',     icon: CinemaIcon      },
+    { path: '/tv',      label: 'TV Shows',   icon: TVIcon          },
+    { path: '/actors',  label: 'Actors',     icon: PeopleGroupIcon },
   ];
 
-  // Adults tab shown separately so it gets the distinctive red accent
-  const adultsLink = { path: '/adults', label: 'Adults 18+', icon: Adults18Icon };
-
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => path === '/'
+    ? location.pathname === '/'
+    : location.pathname.startsWith(path);
 
   const initials = (displayName || user?.email || 'U')[0]?.toUpperCase();
 
@@ -96,7 +88,7 @@ const Navbar = () => {
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-8">
-              {navLinks.slice(0, 3).map(({ path, label, icon: Icon }) => (
+              {navLinks.map(({ path, label, icon: Icon }) => (
                 <Link
                   key={path}
                   to={path}
@@ -108,23 +100,6 @@ const Navbar = () => {
                   {label}
                 </Link>
               ))}
-              {/* Adults 18+ link — only if admin has enabled it in Supabase */}
-              {showAdultSection && (
-                <Link
-                  to={adultsLink.path}
-                  className="flex items-center gap-1.5 text-sm font-medium transition-all duration-300 px-3 py-1 rounded-full"
-                  style={{
-                    color: location.pathname.startsWith('/adults') ? '#f87171' : '#6B6875',
-                    background: location.pathname.startsWith('/adults') ? 'rgba(220,38,38,0.1)' : 'transparent',
-                    border: location.pathname.startsWith('/adults') ? '1px solid rgba(220,38,38,0.25)' : '1px solid transparent',
-                  }}
-                  onMouseEnter={(e) => { if (!location.pathname.startsWith('/adults')) e.currentTarget.style.color = '#f87171'; }}
-                  onMouseLeave={(e) => { if (!location.pathname.startsWith('/adults')) e.currentTarget.style.color = '#6B6875'; }}
-                >
-                  <Adults18Icon size={16} />
-                  {adultsLink.label}
-                </Link>
-              )}
             </div>
 
             {/* Right Actions */}
@@ -173,8 +148,8 @@ const Navbar = () => {
                         <p className="text-text-muted text-xs truncate">{user.email}</p>
                       </div>
                       {[
-                        { to: '/profile',   label: 'Profile',   Icon: UserIcon },
-                        { to: '/favorites', label: 'Favorites', Icon: HeartIcon },
+                        { to: '/profile',   label: 'Profile',   Icon: UserIcon     },
+                        { to: '/favorites', label: 'Favorites', Icon: HeartIcon    },
                         { to: '/watchlist', label: 'Watchlist', Icon: BookmarkIcon },
                       ].map(({ to, label, Icon }) => (
                         <Link
@@ -221,7 +196,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Guest Banner — shown below the navbar, only for guests */}
+        {/* Guest Banner */}
         {!user && <GuestBanner />}
       </nav>
 
@@ -255,18 +230,6 @@ const Navbar = () => {
                 {label}
               </Link>
             ))}
-            {/* Adults 18+ — mobile — only if enabled in Supabase */}
-            {showAdultSection && (
-              <Link
-                to={adultsLink.path}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-4 text-2xl font-display font-medium transition-all duration-300"
-                style={{ color: location.pathname.startsWith('/adults') ? '#f87171' : '#6B6875' }}
-              >
-                <Adults18Icon size={28} />
-                Adults 18+
-              </Link>
-            )}
             {user ? (
               <button
                 onClick={() => { setIsMobileMenuOpen(false); handleSignOut(); }}
