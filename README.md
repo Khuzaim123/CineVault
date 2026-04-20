@@ -49,7 +49,6 @@ CineVault is a feature-rich cinema discovery application that lets users explore
 | 📌 **Watchlist** | Keep track of what you want to watch next |
 | 👤 **User Profiles** | Editable profile with avatar upload and bio |
 | 🔐 **Authentication** | Email/password and Google OAuth sign-in via Supabase |
-| 🧩 **Dynamic Nav** | "Adults" tab visibility controlled by a Supabase feature flag |
 | 📱 **Mobile Preview** | Built-in mobile viewport toggle for development/testing |
 | 🛡️ **Dev Protection** | Context-menu & DevTools keyboard shortcut blocking |
 | 💀 **Skeleton Loading** | Skeleton card placeholders for smooth perceived performance |
@@ -196,33 +195,7 @@ CineVault requires several tables and policies in your Supabase project. See the
 | 5 | `avatars` storage bucket — public bucket for profile pictures |
 | 6 | Google OAuth provider — optional social login |
 
-### Feature Flags Table (Optional)
 
-To use the dynamic Adults navigation tab, create the `site_settings` table:
-
-```sql
-create table if not exists public.site_settings (
-  key   text primary key,
-  value boolean not null default true
-);
-
-insert into public.site_settings (key, value)
-values ('show_adult_section', true)
-on conflict (key) do nothing;
-
--- Allow anonymous reads
-alter table public.site_settings enable row level security;
-create policy "Public read" on public.site_settings
-  for select using (true);
-```
-
-Toggle the Adults tab without a deployment by updating this row:
-
-```sql
-update public.site_settings set value = false where key = 'show_adult_section';
-```
-
----
 
 ## 🏗 Architecture
 
@@ -300,7 +273,6 @@ const { showAdultSection, loading } = useSiteSettings();
 
 | Return value | Type | Description |
 |---|---|---|
-| `showAdultSection` | `boolean` | Whether to show the Adults nav tab |
 | `loading` | `boolean` | True during the initial fetch |
 
 Uses a module-level cache (`_cache`) so all components share one database read per page load. Defaults to `true` if the table doesn't exist yet.
@@ -316,7 +288,7 @@ CRUD helpers for the `favorites` and `watchlist` tables. Used by `MovieCard`, `M
 
 | Component | Purpose |
 |---|---|
-| `Navbar` | Top navigation: logo, links (dynamic Adults tab), search, user menu |
+| `Navbar` | Top navigation: logo, links, search, user menu |
 | `HeroSection` | Animated hero banner with featured movie backdrop, title, and CTA buttons |
 | `MovieCard` | Poster card with rating badge, media-type label, and quick-add buttons |
 | `MovieRow` | Horizontally scrollable row of `MovieCard`s with a section heading |
@@ -433,6 +405,13 @@ npm run preview
 5. Open a Pull Request
 
 Please keep components focused and reusable, and follow the existing naming conventions.
+
+---
+
+## 👤 Author
+
+- **GitHub:** [@Khuzaim123](https://github.com/Khuzaim123)
+- **Email:** khuzaimadnana@gmail.com
 
 ---
 
