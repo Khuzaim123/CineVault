@@ -1,4 +1,5 @@
 import { CinemaIcon } from './CustomIcons';
+import logoImg from '../assets/logo.png';
 
 const Footer = () => {
   return (
@@ -8,8 +9,8 @@ const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="text-gold">
-                <CinemaIcon size={32} />
+              <div>
+                <img src={logoImg} alt="CineVault Logo" className="w-12 h-12 object-contain mix-blend-screen" />
               </div>
               <span className="font-display text-xl font-bold text-text-primary">
                 CineVault

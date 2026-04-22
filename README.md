@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="src/assets/logo.png" alt="CineVault Logo" width="150" style="background: #07080F; padding: 20px; border-radius: 20px; margin-bottom: 20px" />
+</div>
+
 # 🎬 CineVault
 
 > A modern, full-featured movie & TV discovery platform built with React, Vite, Supabase, and the TMDB API.

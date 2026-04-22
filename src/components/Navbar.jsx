@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import GuestBanner from './GuestBanner';
+import logoImg from '../assets/logo.png';
 
 const Navbar = () => {
   const [isScrolled,      setIsScrolled]      = useState(false);
@@ -80,8 +81,8 @@ const Navbar = () => {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="text-gold group-hover:scale-110 transition-transform duration-300">
-                <CinemaIcon size={36} />
+              <div className="group-hover:scale-110 transition-transform duration-300">
+                <img src={logoImg} alt="CineVault Logo" className="w-12 h-12 object-contain mix-blend-screen" />
               </div>
               <span className="font-display text-2xl font-bold text-text-primary tracking-wide">CineVault</span>
             </Link>
@@ -209,7 +210,9 @@ const Navbar = () => {
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-6 border-b border-white/10">
             <Link to="/" className="flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
-              <div className="text-gold"><CinemaIcon size={32} /></div>
+              <div>
+                <img src={logoImg} alt="CineVault Logo" className="w-12 h-12 object-contain mix-blend-screen" />
+              </div>
               <span className="font-display text-xl font-bold text-text-primary">CineVault</span>
             </Link>
             <button className="text-text-muted hover:text-text-primary" onClick={() => setIsMobileMenuOpen(false)}>
