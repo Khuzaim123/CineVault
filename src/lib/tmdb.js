@@ -12,6 +12,7 @@ export const getTVPopular   = (page = 1) => fetch(`${BASE_URL}/tv/popular?api_ke
 export const getTVTopRated  = (page = 1) => fetch(`${BASE_URL}/tv/top_rated?api_key=${API_KEY}&page=${page}`);
 export const searchTV       = (query, page = 1) => fetch(`${BASE_URL}/search/tv?query=${query}&api_key=${API_KEY}&page=${page}`);
 export const getTVDetail    = (id) => fetch(`${BASE_URL}/tv/${id}?append_to_response=videos,credits&api_key=${API_KEY}`);
+export const getTVSeasonDetail = (id, seasonNumber) => fetch(`${BASE_URL}/tv/${id}/season/${seasonNumber}?api_key=${API_KEY}`);
 export const getTVSimilar   = (id) => fetch(`${BASE_URL}/tv/${id}/similar?api_key=${API_KEY}`);
 export const getNowPlaying  = (page = 1) => fetch(`${BASE_URL}/movie/now_playing?api_key=${API_KEY}&page=${page}`);
 export const getSimilar     = (id) => fetch(`${BASE_URL}/movie/${id}/similar?api_key=${API_KEY}`);

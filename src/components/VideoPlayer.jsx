@@ -1,33 +1,95 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { CloseIcon, FullscreenIcon } from './CustomIcons';
 
+const CustomDropdown = ({ label, options, value, onChange, isOpen, toggleOpen, closeOpen }) => (
+  <div className="relative" onMouseLeave={closeOpen}>
+    <button
+      onClick={toggleOpen}
+      style={{
+        display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 1rem',
+        borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+        background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.15)',
+        transition: 'all 0.2s ease', whiteSpace: 'nowrap'
+      }}
+    >
+      {label}
+      <svg style={{ width: '12px', height: '12px', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+    </button>
+    
+    {isOpen && (
+      <div 
+        style={{
+          position: 'absolute', top: '110%', left: 0, minWidth: '100%',
+          background: '#0d0f1a', border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '6px', overflowY: 'auto', maxHeight: '200px', zIndex: 100,
+          boxShadow: '0 10px 25px rgba(0,0,0,0.5)', padding: '0.25rem 0'
+        }}
+      >
+        {options.map(opt => (
+          <button
+            key={opt.value}
+            onClick={() => { onChange(opt.value); closeOpen(); }}
+            style={{
+              display: 'block', width: '100%', textAlign: 'left', padding: '0.4rem 1rem',
+              fontSize: '0.8rem', color: value === opt.value ? '#E8B84B' : '#fff',
+              background: value === opt.value ? 'rgba(232,184,75,0.1)' : 'transparent',
+              border: 'none', cursor: 'pointer', whiteSpace: 'nowrap'
+            }}
+            onMouseEnter={(e) => {
+              if (value !== opt.value) e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+            }}
+            onMouseLeave={(e) => {
+              if (value !== opt.value) e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+);
+
 // ─── Source definitions ──────────────────────────────────────────────────────
-const buildSources = (tmdbId, trailerKey, isTV) => [
-  {
-    id: 'src1',
-    label: 'Source 1',
-    url: `https://vidsrc.to/embed/${isTV ? 'tv' : 'movie'}/${tmdbId}`,
-  },
-  {
-    id: 'src2',
-    label: 'Source 2',
-    url: `https://vidsrc.me/embed/${isTV ? 'tv' : 'movie'}?tmdb=${tmdbId}`,
-  },
-  {
-    id: 'src3',
-    label: 'Source 3',
-    url: isTV ? `https://multiembed.mov/?tmdb=1&video_id=${tmdbId}&tmdb_type=tv` : `https://multiembed.mov/?tmdb=1&video_id=${tmdbId}`,
-  },
-  {
-    id: 'trailer',
-    label: 'Trailer',
-    url: trailerKey ? `https://www.youtube.com/embed/${trailerKey}?autoplay=1` : null,
-  },
-];
+const buildSources = (tmdbId, trailerKey, isTV, season, episode) => {
+  const tvSuffix = isTV && season && episode ? `/${season}/${episode}` : '';
+  const tvSuffix2 = isTV && season && episode ? `&s=${season}&e=${episode}` : '';
+  const tvSuffix3 = isTV && season && episode ? `&season=${season}&episode=${episode}` : '';
+
+  return [
+    {
+      id: 'src1',
+      label: 'Source 1',
+      url: `https://vidsrc.to/embed/${isTV ? 'tv' : 'movie'}/${tmdbId}${tvSuffix}`,
+    },
+    {
+      id: 'src2',
+      label: 'Source 2',
+      url: `https://vidsrc.me/embed/${isTV ? 'tv' : 'movie'}?tmdb=${tmdbId}${tvSuffix3}`,
+    },
+    {
+      id: 'src3',
+      label: 'Source 3',
+      url: isTV ? `https://multiembed.mov/?tmdb=1&video_id=${tmdbId}&tmdb_type=tv${tvSuffix2}` : `https://multiembed.mov/?tmdb=1&video_id=${tmdbId}`,
+    },
+    {
+      id: 'trailer',
+      label: 'Trailer',
+      url: trailerKey ? `https://www.youtube.com/embed/${trailerKey}?autoplay=1` : null,
+    },
+  ];
+};
 
 // ─── Component ───────────────────────────────────────────────────────────────
-const VideoPlayer = ({ movieId, trailerKey, isTV, onClose }) => {
-  const sources = buildSources(movieId, trailerKey, isTV);
+const VideoPlayer = ({ movieId, trailerKey, isTV, initialSeason, initialEpisode, seasons = [], onClose }) => {
+  const validSeasons = seasons.filter(s => s.season_number > 0);
+  const [season, setSeason] = useState(initialSeason || 1);
+  const [episode, setEpisode] = useState(initialEpisode || 1);
+  
+  const [isSeasonOpen, setIsSeasonOpen] = useState(false);
+  const [isEpisodeOpen, setIsEpisodeOpen] = useState(false);
+
+  const sources = buildSources(movieId, trailerKey, isTV, season, episode);
   const streamSources = sources.slice(0, 3); // Source 1–3 only
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -36,13 +98,13 @@ const VideoPlayer = ({ movieId, trailerKey, isTV, onClose }) => {
   const [isLoading, setIsLoading] = useState(true);
   const iframeRef = useRef(null);
 
-  // Reset when movie changes
+  // Reset when movie, season, or episode changes
   useEffect(() => {
     setActiveIndex(0);
-    setIframeKey(0);
+    setIframeKey(k => k + 1);
     setFailedIndices(new Set());
     setIsLoading(true);
-  }, [movieId]);
+  }, [movieId, season, episode]);
 
   // Keyboard close
   useEffect(() => {
@@ -54,6 +116,45 @@ const VideoPlayer = ({ movieId, trailerKey, isTV, onClose }) => {
       document.body.style.overflow = 'auto';
     };
   }, [onClose]);
+
+  // ── Ad Blocker: silently swallow popup/redirect attempts from iframe scripts ──
+  useEffect(() => {
+    // 1. Override window.open — ads open new tabs via this. We return a fake dead window.
+    const originalOpen = window.open;
+    window.open = (url, target, features) => {
+      // Allow YouTube embeds (trailers)
+      if (url && url.includes('youtube.com')) return originalOpen(url, target, features);
+      // Silently swallow everything else
+      return {
+        closed: true, focus: () => {}, blur: () => {}, close: () => {},
+        location: { href: '' }, document: { write: () => {}, close: () => {} },
+      };
+    };
+
+    // 2. Protect window.top.location — some ads try to redirect the whole page
+    try {
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        get() { return window._realLocation || location; },
+        set(val) {
+          // Block redirect if it's not from user action (ads do this programmatically)
+          console.debug('[CineVault] Blocked redirect to:', val);
+        },
+      });
+    } catch (_) { /* Some browsers don't allow overriding location — safe to ignore */ }
+
+    // 3. Block beforeunload / unload redirects triggered by ad scripts
+    const blockUnload = (e) => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', blockUnload);
+
+    return () => {
+      window.open = originalOpen;
+      window.removeEventListener('beforeunload', blockUnload);
+      try {
+        Object.defineProperty(window, 'location', { configurable: true, get: undefined, set: undefined });
+      } catch (_) {}
+    };
+  }, []);
 
   const currentSource = sources[activeIndex];
 
@@ -177,10 +278,35 @@ const VideoPlayer = ({ movieId, trailerKey, isTV, onClose }) => {
             );
           })}
 
+          {/* Custom Dropdowns for Season/Episode */}
+          {isTV && validSeasons.length > 0 && (
+            <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto', alignItems: 'center' }}>
+              <CustomDropdown
+                label={`Season ${season}`}
+                options={validSeasons.map(s => ({ value: s.season_number, label: `Season ${s.season_number}` }))}
+                value={season}
+                onChange={(val) => { setSeason(val); setEpisode(1); }}
+                isOpen={isSeasonOpen}
+                toggleOpen={() => { setIsSeasonOpen(!isSeasonOpen); setIsEpisodeOpen(false); }}
+                closeOpen={() => setIsSeasonOpen(false)}
+              />
+              
+              <CustomDropdown
+                label={`Episode ${episode}`}
+                options={Array.from({ length: validSeasons.find(s => s.season_number === season)?.episode_count || 1 }).map((_, i) => ({ value: i + 1, label: `Episode ${i + 1}` }))}
+                value={episode}
+                onChange={(val) => setEpisode(val)}
+                isOpen={isEpisodeOpen}
+                toggleOpen={() => { setIsEpisodeOpen(!isEpisodeOpen); setIsSeasonOpen(false); }}
+                closeOpen={() => setIsEpisodeOpen(false)}
+              />
+            </div>
+          )}
+
           {/* Hint message */}
           <span
             style={{
-              marginLeft: 'auto',
+              marginLeft: isTV && validSeasons.length > 0 ? '0.5rem' : 'auto',
               fontSize: '0.72rem',
               color: 'rgba(255,255,255,0.35)',
               fontStyle: 'italic',
